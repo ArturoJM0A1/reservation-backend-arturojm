@@ -5,7 +5,7 @@ Monorepo con dos aplicaciones principales:
 - `reservation-backend`: API REST construida con Spring Boot
 - `reservation-frontend`: cliente Angular
 
-El proyecto permite consultar reservas, crear nuevas reservas desde servicio HTTP y cancelar reservas existentes. En el estado actual del frontend, la vista principal muestra una tabla con las reservas y permite cancelarlas; el servicio Angular ya expone tambien el metodo para crear reservas, listo para futuras pantallas o formularios.
+El proyecto permite consultar reservas, crear nuevas reservas desde servicio HTTP y cancelar reservas existentes. En el estado actual del frontend, la vista principal incluye un formulario reactivo para registrar reservas nuevas, una tabla con la agenda actual y la opcion de cancelar reservas existentes.
 
 ## Arquitectura General
 
@@ -280,9 +280,12 @@ La vista principal del frontend es una pagina dedicada que muestra una tabla de 
 Este componente:
 
 - obtiene las reservas desde `ReservationService`
-- las muestra en una tabla
+- muestra un formulario reactivo con campos obligatorios para crear reservas
+- recomienda servicios frecuentes para soporte tecnico de computadores
+- registra la reserva mediante `createReservation()`
+- agrega la nueva reserva a la tabla sin recargar la pagina
 - permite cancelar una reserva con un boton
-- muestra mensajes de exito y error
+- muestra mensajes de exito y un toast cuando ocurre un error al guardar
 
 ## ReservationService En Angular
 
@@ -294,7 +297,31 @@ Expone estos metodos:
 - `createReservation(payload)`
 - `cancelReservation(id)`
 
-Aunque la pagina actual esta enfocada en tabla + cancelacion, el metodo `createReservation()` ya esta listo para conectarse a futuros formularios o nuevas pantallas.
+La pagina principal ya consume `createReservation()` desde un formulario reactivo con estos controles:
+
+- `nombreCliente`
+- `fecha`
+- `hora`
+- `servicio`
+
+Internamente, el frontend transforma esos valores al payload que espera la API:
+
+```json
+{
+  "customerName": "Laura Martinez",
+  "date": "2026-03-28",
+  "time": "10:30:00",
+  "service": "Diagnostico y mantenimiento preventivo"
+}
+```
+
+Servicios sugeridos para un negocio de soporte tecnico de computadores:
+
+- Diagnostico y mantenimiento preventivo
+- Formateo e instalacion de sistema operativo
+- Eliminacion de virus y optimizacion
+- Reparacion de hardware y cambio de componentes
+- Respaldo y recuperacion de informacion
 
 ## Comandos Utiles
 

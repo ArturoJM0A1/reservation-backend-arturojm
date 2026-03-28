@@ -1,0 +1,18 @@
+<aside
+  class="toast"
+  [class.toast--error]="tone() === 'error'"
+  [class.toast--success]="tone() === 'success'"
+  role="alert"
+  aria-live="assertive"
+>
+  <span class="toast__accent" aria-hidden="true"></span>
+
+  <div class="toast__body">
+    <p class="toast__title">{{ title() }}</p>
+    <p class="toast__message">{{ message() }}</p>
+  </div>
+
+  <button class="toast__close" type="button" (click)="close()">
+    Cerrar
+  </button>
+</aside>

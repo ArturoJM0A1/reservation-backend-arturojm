@@ -1,0 +1,107 @@
+:host {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.toast {
+  min-width: min(26rem, calc(100vw - 2rem));
+  max-width: min(30rem, calc(100vw - 2rem));
+  display: grid;
+  grid-template-columns: 6px minmax(0, 1fr) auto;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(145deg, rgba(9, 18, 40, 0.98), rgba(5, 11, 24, 0.95));
+  box-shadow: 0 26px 60px rgba(2, 8, 23, 0.42);
+  pointer-events: auto;
+  animation: toast-enter 0.28s ease;
+}
+
+.toast--error {
+  color: #f8fbff;
+}
+
+.toast--success {
+  color: #f1fff9;
+}
+
+.toast__accent {
+  background: linear-gradient(180deg, #7fd2ff 0%, #4d7fff 100%);
+}
+
+.toast--success .toast__accent {
+  background: linear-gradient(180deg, #6ce3b1 0%, #24b47e 100%);
+}
+
+.toast__body {
+  padding: 1rem 1rem 1rem 1.05rem;
+}
+
+.toast__title {
+  margin: 0;
+  font-family: 'Aptos Display', 'Segoe UI Variable Display', 'Bahnschrift', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.toast__message {
+  margin: 0.35rem 0 0;
+  color: rgba(236, 243, 255, 0.88);
+  line-height: 1.6;
+}
+
+.toast__close {
+  align-self: center;
+  margin: 0.75rem 0.85rem 0.75rem 0;
+  min-height: 2.2rem;
+  padding: 0 0.95rem;
+  border: 1px solid rgba(134, 173, 241, 0.22);
+  border-radius: 999px;
+  background: rgba(17, 31, 64, 0.88);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.toast__close:hover {
+  transform: translateY(-1px);
+  background: rgba(22, 42, 84, 0.98);
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.9rem, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (max-width: 720px) {
+  :host {
+    left: 1rem;
+    right: 1rem;
+  }
+
+  .toast {
+    min-width: 0;
+    max-width: none;
+    grid-template-columns: 6px minmax(0, 1fr);
+  }
+
+  .toast__close {
+    grid-column: 2;
+    justify-self: start;
+    margin: 0 0 1rem 1rem;
+  }
+}

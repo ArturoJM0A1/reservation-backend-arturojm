@@ -28,6 +28,19 @@ mvnw.cmd test
 http://localhost:8081/reservas
 ```
 
+## Integracion Con El Frontend
+
+El cliente Angular consume este endpoint desde un formulario reactivo para crear reservas nuevas.
+
+Campos que recibe la API en el `POST /reservas`:
+
+- `customerName`
+- `date`
+- `time`
+- `service`
+
+Si ocurre un error de negocio o de persistencia, el backend responde con un mensaje que el frontend muestra dentro de un toast para informar al usuario.
+
 ## Referencia principal
 
 Consulta el README raiz del repositorio para la documentacion completa del sistema.

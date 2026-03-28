@@ -1,10 +1,11 @@
 <main class="page-shell">
   <section class="page-header panel">
     <div class="page-header__copy">
-      <p class="eyebrow">Panel de reservas</p>
+      <p class="eyebrow">Mesa de control</p>
       <h1>Reservas registradas</h1>
       <p class="page-header__text">
-        Consulta la agenda completa y cancela reservas desde una sola tabla.
+        Organiza la agenda de soporte tecnico, registra nuevas visitas y administra cada turno desde
+        un mismo tablero.
       </p>
     </div>
 
@@ -21,71 +22,193 @@
     </section>
   }
 
-  <section class="panel table-panel">
-    @if (loading()) {
-      <div class="empty-state">
-        <p class="empty-state__title">Cargando reservas...</p>
-        <p class="empty-state__copy">Obteniendo informacion desde el backend.</p>
+  <section class="content-grid">
+    <article class="panel composer-panel">
+      <div class="composer-panel__header">
+        <div>
+          <p class="eyebrow">Nueva reserva</p>
+          <h2>Programa una visita tecnica</h2>
+        </div>
+        <p class="composer-panel__text">
+          Todos los campos son obligatorios. El formulario envia la reserva directamente al servicio
+          HTTP del sistema.
+        </p>
       </div>
-    } @else if (reservations().length === 0) {
-      <div class="empty-state">
-        <p class="empty-state__title">No hay reservas disponibles</p>
-        <p class="empty-state__copy">Cuando existan registros apareceran en esta tabla.</p>
-      </div>
-    } @else {
-      <div class="table-shell">
-        <table class="reservations-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Cliente</th>
-              <th>Fecha</th>
-              <th>Hora</th>
-              <th>Servicio</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (
-              reservation of reservations();
-              track trackByReservationId($index, reservation)
-            ) {
-              <tr [class.reservations-table__row--cancelled]="isCancelled(reservation.status)">
-                <td>#{{ reservation.id }}</td>
-                <td>{{ reservation.customerName }}</td>
-                <td>{{ reservation.date | date: 'dd/MM/yyyy' }}</td>
-                <td>{{ reservation.time | slice: 0 : 5 }}</td>
-                <td>{{ reservation.service }}</td>
-                <td>
-                  <span
-                    class="status-pill"
-                    [class.status-pill--cancelled]="isCancelled(reservation.status)"
-                  >
-                    {{ reservation.status }}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    class="danger-button"
-                    type="button"
-                    [disabled]="isCancelled(reservation.status) || cancellingId() === reservation.id"
-                    (click)="cancelReservation(reservation)"
-                  >
-                    @if (cancellingId() === reservation.id) {
-                      Cancelando...
-                    } @else if (isCancelled(reservation.status)) {
-                      Cancelada
-                    } @else {
-                      Cancelar
-                    }
-                  </button>
-                </td>
-              </tr>
+
+      <form class="reservation-form" [formGroup]="reservationForm" (ngSubmit)="submitReservation()">
+        <label class="field">
+          <span class="field__label">Nombre del cliente</span>
+          <input
+            class="field__control"
+            type="text"
+            formControlName="nombreCliente"
+            placeholder="Ej. Laura Martinez"
+            autocomplete="name"
+          />
+          @if (hasFieldError('nombreCliente')) {
+            <span class="field__error">{{ getFieldErrorMessage('nombreCliente') }}</span>
+          }
+        </label>
+
+        <div class="field-grid">
+          <label class="field">
+            <span class="field__label">Fecha</span>
+            <input
+              class="field__control"
+              type="date"
+              [min]="minimumDate"
+              formControlName="fecha"
+            />
+            @if (hasFieldError('fecha')) {
+              <span class="field__error">{{ getFieldErrorMessage('fecha') }}</span>
             }
-          </tbody>
-        </table>
+          </label>
+
+          <label class="field">
+            <span class="field__label">Hora</span>
+            <input class="field__control" type="time" formControlName="hora" />
+            @if (hasFieldError('hora')) {
+              <span class="field__error">{{ getFieldErrorMessage('hora') }}</span>
+            }
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field__label">Servicio</span>
+          <select class="field__control field__control--select" formControlName="servicio">
+            <option value="">Selecciona un servicio</option>
+            @for (serviceOption of serviceOptions; track trackByServiceValue($index, serviceOption)) {
+              <option [value]="serviceOption.value">{{ serviceOption.value }}</option>
+            }
+          </select>
+          @if (hasFieldError('servicio')) {
+            <span class="field__error">{{ getFieldErrorMessage('servicio') }}</span>
+          }
+        </label>
+
+        <div class="form-actions">
+          <button class="primary-button" type="submit" [disabled]="submitting()">
+            @if (submitting()) {
+              Guardando...
+            } @else {
+              Crear reserva
+            }
+          </button>
+
+          <p class="form-actions__hint">Al guardar, la nueva reserva se agrega a la tabla de la agenda.</p>
+        </div>
+      </form>
+
+      <div class="service-advisor">
+        <div class="service-advisor__header">
+          <p class="service-advisor__eyebrow">Recomendaciones</p>
+          <p class="service-advisor__title">Catalogo sugerido para soporte tecnico de computadores</p>
+        </div>
+
+        <div class="service-advisor__list">
+          @for (serviceOption of serviceOptions; track trackByServiceValue($index, serviceOption)) {
+            <article
+              class="service-card"
+              [class.service-card--recommended]="serviceOption.recommended"
+            >
+              <div class="service-card__meta">
+                <p class="service-card__name">{{ serviceOption.value }}</p>
+                @if (serviceOption.recommended) {
+                  <span class="service-card__badge">Mas solicitado</span>
+                }
+              </div>
+              <p class="service-card__description">{{ serviceOption.description }}</p>
+            </article>
+          }
+        </div>
       </div>
-    }
+    </article>
+
+    <section class="panel table-panel">
+      <div class="table-panel__header">
+        <div>
+          <p class="eyebrow">Agenda activa</p>
+          <h2>Reservas en curso</h2>
+        </div>
+        <p class="table-panel__copy">
+          Revisa fechas, servicios y estado de cada solicitud antes de confirmar o cancelar.
+        </p>
+      </div>
+
+      @if (loading()) {
+        <div class="empty-state">
+          <p class="empty-state__title">Cargando reservas...</p>
+          <p class="empty-state__copy">Obteniendo informacion desde el backend.</p>
+        </div>
+      } @else if (reservations().length === 0) {
+        <div class="empty-state">
+          <p class="empty-state__title">No hay reservas disponibles</p>
+          <p class="empty-state__copy">Cuando existan registros apareceran en esta tabla.</p>
+        </div>
+      } @else {
+        <div class="table-shell">
+          <table class="reservations-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Servicio</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (
+                reservation of reservations();
+                track trackByReservationId($index, reservation)
+              ) {
+                <tr [class.reservations-table__row--cancelled]="isCancelled(reservation.status)">
+                  <td>#{{ reservation.id }}</td>
+                  <td>{{ reservation.customerName }}</td>
+                  <td>{{ reservation.date | date: 'dd/MM/yyyy' }}</td>
+                  <td>{{ reservation.time | slice: 0 : 5 }}</td>
+                  <td>{{ reservation.service }}</td>
+                  <td>
+                    <span
+                      class="status-pill"
+                      [class.status-pill--cancelled]="isCancelled(reservation.status)"
+                    >
+                      {{ reservation.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      class="danger-button"
+                      type="button"
+                      [disabled]="isCancelled(reservation.status) || cancellingId() === reservation.id"
+                      (click)="cancelReservation(reservation)"
+                    >
+                      @if (cancellingId() === reservation.id) {
+                        Cancelando...
+                      } @else if (isCancelled(reservation.status)) {
+                        Cancelada
+                      } @else {
+                        Cancelar
+                      }
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
   </section>
+
+  @if (saveErrorToastMessage(); as toastMessage) {
+    <app-toast-message
+      title="No se pudo guardar la reserva"
+      [message]="toastMessage"
+      tone="error"
+      (dismissed)="dismissSaveErrorToast()"
+    />
+  }
 </main>
