@@ -60,10 +60,10 @@ class ReservationControllerIntegrationTest {
 	}
 
 	@Test
-	void getReservationsReturnsBusinessRuleExceptionWhenDatabaseIsEmpty() throws Exception {
+	void getReservationsReturnsEmptyListWhenDatabaseIsEmpty() throws Exception {
 		mockMvc.perform(get("/reservas"))
-				.andExpect(status().isNotFound())
-				.andExpect(jsonPath("$.message").value("No hay reservas registradas en la base de datos."));
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(0));
 	}
 
 	@Test

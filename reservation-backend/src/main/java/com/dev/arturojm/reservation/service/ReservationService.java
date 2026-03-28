@@ -17,13 +17,7 @@ public class ReservationService {
 	}
 
 	public List<Reservation> getAllReservations() {
-		List<Reservation> reservations = reservationRepository.findAllByOrderByIdAsc();
-
-		if (reservations.isEmpty()) {
-			throw new BusinessRuleException("No hay reservas registradas en la base de datos.");
-		}
-
-		return reservations;
+		return reservationRepository.findAllByOrderByIdAsc();
 	}
 
 	public Reservation createReservation(Reservation reservation) {
